@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nephew's Learning Game</title>
+  <script src="https://unpkg.com/convex@1.39.1/dist/umd.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -79,13 +80,19 @@
     .status-message { font-size: 2rem; margin: 1rem 0; padding: 1rem; border-radius: 10px; }
     .status-message.success { background: #4CAF50; }
     .status-message.error { background: #f44336; }
+
+    .loading { font-size: 1.5rem; margin: 2rem 0; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>🎮 Learning Game</h1>
 
-    <div id="login-section" class="login-box">
+    <div id="loading-section" class="login-box">
+      <p class="loading">Loading game...</p>
+    </div>
+
+    <div id="login-section" class="login-box hidden">
       <p style="margin-bottom: 1rem; font-size: 1.2rem;">Welcome! Enter your ID to play:</p>
       <input type="number" id="profile-id" placeholder="Your ID" min="1">
       <button id="login-btn" class="btn btn-primary">Login</button>
@@ -113,20 +120,26 @@
     </div>
   </div>
 
-  <script src="https://unpkg.com/convex@1.39.1/dist/umd.js"></script>
   <script>
     const CONVEX_URL = "https://veracious-oriole-103.convex.cloud";
-    const convex = new convex.ConvexHttpClient(CONVEX_URL);
 
+    let client = null;
     let currentProfileId = localStorage.getItem('profile_id') || null;
     let currentLevelId = 1;
     let selectedBoxIndex = 2;
     let gamepadInterval = null;
     let levelsData = [];
 
+    function initConvex() {
+      client = new ConvexHttpClient(CONVEX_URL);
+      document.getElementById('loading-section').classList.add('hidden');
+      document.getElementById('login-section').classList.remove('hidden');
+      checkSession();
+    }
+
     async function register() {
       try {
-        const result = await convex.mutation('register', {});
+        const result = await client.mutation('register', {});
         const id = result.id || currentProfileId || Date.now();
         alert('Your ID is: ' + id + '. Remember it!');
         localStorage.setItem('profile_id', id.toString());
@@ -143,7 +156,7 @@
       if (!id) return alert('Please enter your ID');
 
       try {
-        const result = await convex.mutation('login', { id: parseInt(id) });
+        const result = await client.mutation('login', { id: parseInt(id) });
         if (result.success) {
           currentProfileId = parseInt(id);
           localStorage.setItem('profile_id', id);
@@ -173,7 +186,7 @@
 
     async function loadLevels() {
       try {
-        const result = await convex.query('getAllLevels', {});
+        const result = await client.query('getAllLevels', {});
         levelsData = result || [];
       } catch (e) {
         levelsData = [];
@@ -184,7 +197,7 @@
 
       let currentLevel = 1;
       try {
-        const profile = await convex.query('getProfile', { id: currentProfileId });
+        const profile = await client.query('getProfile', { id: currentProfileId });
         currentLevel = profile?.currentLevel || 1;
       } catch (e) {}
 
@@ -212,7 +225,7 @@
     async function startGame() {
       let currentLevel = 1;
       try {
-        const profile = await convex.query('getProfile', { id: currentProfileId });
+        const profile = await client.query('getProfile', { id: currentProfileId });
         currentLevel = profile?.currentLevel || 1;
       } catch (e) {}
       startLevel(currentLevel);
@@ -224,7 +237,7 @@
       document.getElementById('game-section').classList.remove('hidden');
 
       try {
-        const level = await convex.query('getLevel', { levelId });
+        const level = await client.query('getLevel', { levelId });
         if (!level) {
           document.getElementById('letter-display').textContent = 'A';
         } else {
@@ -283,7 +296,7 @@
       const selectedOption = boxes[boxIndex].textContent;
 
       try {
-        const result = await convex.mutation('submitAnswer', {
+        const result = await client.mutation('submitAnswer', {
           profileId: currentProfileId,
           levelId: currentLevelId,
           selectedOption
@@ -337,7 +350,11 @@
     document.getElementById('start-btn').addEventListener('click', startGame);
     document.getElementById('logout-btn').addEventListener('click', logout);
 
-    checkSession();
+    if (typeof ConvexHttpClient !== 'undefined') {
+      initConvex();
+    } else {
+      document.querySelector('.loading').textContent = 'Error loading Convex. Please refresh.';
+    }
   </script>
 </body>
 </html>
