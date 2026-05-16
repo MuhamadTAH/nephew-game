@@ -34,11 +34,14 @@
     .status-message { font-size: 2rem; margin: 1rem 0; padding: 1rem; border-radius: 10px; }
     .status-message.success { background: #4CAF50; }
     .status-message.error { background: #f44336; }
+    .debug-log { text-align: left; font-size: 0.8rem; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 10px; margin-top: 1rem; max-height: 200px; overflow-y: auto; }
+    .debug-log p { margin: 0.3rem 0; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>🎮 Learning Game</h1>
+    <div id="debug-log" class="debug-log" style="display:none;"></div>
     <div id="login-section" class="login-box">
       <p style="margin-bottom: 1rem; font-size: 1.2rem;">Welcome!</p>
       <button id="register-btn" class="btn btn-secondary">New Player</button>
@@ -77,15 +80,32 @@
     let gamepadInterval = null;
     let levelsData = [];
 
+    function log(msg) {
+      console.log('[GAME]', msg);
+      const logEl = document.getElementById('debug-log');
+      if (logEl) {
+        logEl.style.display = 'block';
+        logEl.innerHTML += `<p>${new Date().toLocaleTimeString()} - ${msg}</p>`;
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+    }
+
     async function register() {
+      log('Register: Starting...');
+      log('Register: currentProfileId before = ' + currentProfileId);
       try {
+        log('Register: Calling convex.mutation(register, {})');
         const result = await convex.mutation('register', {});
+        log('Register: Result = ' + JSON.stringify(result));
         const id = result.id || Date.now();
+        log('Register: ID = ' + id);
         alert('Your ID is: ' + id + '. Remember it!');
         localStorage.setItem('profile_id', id.toString());
         currentProfileId = id;
+        log('Register: currentProfileId after = ' + currentProfileId);
         showDashboard();
       } catch (e) {
+        log('Register ERROR: ' + e.message);
         console.error('Register error:', e);
         alert('Registration failed: ' + e.message);
       }
@@ -94,8 +114,10 @@
     async function login() {
       const id = document.getElementById('profile-id').value;
       if (!id) return alert('Please enter your ID');
+      log('Login: id = ' + id);
       try {
         const result = await convex.mutation('login', { id: parseInt(id) });
+        log('Login: result = ' + JSON.stringify(result));
         if (result.success) {
           currentProfileId = parseInt(id);
           localStorage.setItem('profile_id', id);
@@ -104,34 +126,45 @@
           alert('Profile not found');
         }
       } catch (e) {
+        log('Login ERROR: ' + e.message);
         console.error('Login error:', e);
         alert('Login failed: ' + e.message);
       }
     }
 
     async function showDashboard() {
+      log('showDashboard: Starting...');
+      log('showDashboard: currentProfileId = ' + currentProfileId);
       document.getElementById('login-section').classList.add('hidden');
       document.getElementById('dashboard-section').classList.remove('hidden');
       await loadLevels();
     }
 
     async function loadLevels() {
+      log('loadLevels: Starting...');
       try {
+        log('loadLevels: Calling getAllLevels query');
         const result = await convex.query('getAllLevels', {});
+        log('loadLevels: getAllLevels result = ' + JSON.stringify(result));
         levelsData = result || [];
       } catch (e) {
+        log('loadLevels ERROR: ' + e.message);
         levelsData = [];
-        console.error('loadLevels error:', e);
       }
       const grid = document.getElementById('levels-grid');
       grid.innerHTML = '';
       let currentLevel = 1;
+      log('loadLevels: currentProfileId = ' + currentProfileId);
       try {
         const profile = await convex.query('getProfile', { id: currentProfileId });
+        log('loadLevels: getProfile result = ' + JSON.stringify(profile));
         currentLevel = profile?.currentLevel || 1;
-      } catch (e) {}
+      } catch (e) {
+        log('loadLevels getProfile ERROR: ' + e.message);
+      }
       document.getElementById('current-level').textContent = currentLevel;
       const maxLevel = Math.max(levelsData.length, currentLevel, 5);
+      log('loadLevels: maxLevel = ' + maxLevel + ', levelsData.length = ' + levelsData.length);
       for (let i = 1; i <= maxLevel; i++) {
         const btn = document.createElement('button');
         btn.className = 'level-btn';
@@ -144,6 +177,7 @@
     }
 
     function startLevel(levelId) {
+      log('startLevel: ' + levelId);
       currentLevelId = levelId;
       document.getElementById('dashboard-section').classList.add('hidden');
       document.getElementById('game-section').classList.remove('hidden');
@@ -181,8 +215,10 @@
     async function submitAnswer(boxIndex) {
       const boxes = document.querySelectorAll('.option-box');
       const selectedOption = boxes[boxIndex].textContent;
+      log('submitAnswer: boxIndex=' + boxIndex + ', selectedOption=' + selectedOption);
       try {
         const result = await convex.mutation('submitAnswer', { profileId: currentProfileId, levelId: currentLevelId, selectedOption });
+        log('submitAnswer: result = ' + JSON.stringify(result));
         const statusEl = document.getElementById('status-message');
         statusEl.classList.remove('hidden');
         if (result.correct) {
@@ -196,7 +232,7 @@
           statusEl.textContent = '✗ Try Again!';
           setTimeout(() => { boxes[boxIndex].classList.remove('wrong'); statusEl.classList.add('hidden'); }, 1000);
         }
-      } catch (e) { console.error('submitAnswer error:', e); }
+      } catch (e) { log('submitAnswer ERROR: ' + e.message); }
     }
 
     function logout() {
@@ -212,10 +248,12 @@
     document.getElementById('login-btn').addEventListener('click', login);
     document.getElementById('start-btn').addEventListener('click', () => {
       const stored = localStorage.getItem('profile_id');
+      log('start-btn clicked, stored=' + stored);
       if (stored) startLevel(parseInt(stored));
       else startLevel(1);
     });
     document.getElementById('logout-btn').addEventListener('click', logout);
+    log('Script initialized, currentProfileId=' + currentProfileId);
   </script>
 </body>
 </html>
