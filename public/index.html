@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nephew's Learning Game</title>
-  <script src="https://unpkg.com/convex@1.39.1/dist/esm/index.js" type="module"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -89,17 +88,17 @@
     <div id="login-section" class="login-box">
       <p style="margin-bottom: 1rem; font-size: 1.2rem;">Welcome! Enter your ID to play:</p>
       <input type="number" id="profile-id" placeholder="Your ID" min="1">
-      <button class="btn btn-primary" onclick="window.login()">Login</button>
+      <button id="login-btn" class="btn btn-primary">Login</button>
       <br><br>
-      <button class="btn btn-secondary" onclick="window.register()">New Player</button>
+      <button id="register-btn" class="btn btn-secondary">New Player</button>
     </div>
 
     <div id="dashboard-section" class="game-area hidden">
       <h2>Your Progress</h2>
       <p>Current Level: <span id="current-level">1</span></p>
       <div class="levels-grid" id="levels-grid"></div>
-      <button class="btn btn-primary" onclick="window.startGame()">Start Game</button>
-      <button class="btn btn-secondary" onclick="window.logout()">Switch Player</button>
+      <button id="start-btn" class="btn btn-primary">Start Game</button>
+      <button id="logout-btn" class="btn btn-secondary">Switch Player</button>
     </div>
 
     <div id="game-section" class="game-area hidden">
@@ -114,11 +113,10 @@
     </div>
   </div>
 
-  <script type="module">
-    import { ConvexHttpClient } from "https://unpkg.com/convex@1.39.1/dist/esm/client.js";
-
+  <script src="https://unpkg.com/convex@1.39.1/dist/umd.js"></script>
+  <script>
     const CONVEX_URL = "https://veracious-oriole-103.convex.cloud";
-    const convex = new ConvexHttpClient(CONVEX_URL);
+    const convex = new convex.ConvexHttpClient(CONVEX_URL);
 
     let currentProfileId = localStorage.getItem('profile_id') || null;
     let currentLevelId = 1;
@@ -126,11 +124,11 @@
     let gamepadInterval = null;
     let levelsData = [];
 
-    window.register = async function() {
+    async function register() {
       try {
         const result = await convex.mutation('register', {});
         const id = result.id || currentProfileId || Date.now();
-        alert(`Your ID is: ${id}. Remember it!`);
+        alert('Your ID is: ' + id + '. Remember it!');
         localStorage.setItem('profile_id', id.toString());
         currentProfileId = id;
         showDashboard();
@@ -138,9 +136,9 @@
         console.error('Register error:', e);
         alert('Registration failed. Make sure Convex is running.');
       }
-    };
+    }
 
-    window.login = async function() {
+    async function login() {
       const id = document.getElementById('profile-id').value;
       if (!id) return alert('Please enter your ID');
 
@@ -157,7 +155,7 @@
         console.error('Login error:', e);
         alert('Login failed.');
       }
-    };
+    }
 
     async function checkSession() {
       const storedId = localStorage.getItem('profile_id');
@@ -333,6 +331,11 @@
       document.getElementById('game-section').classList.add('hidden');
       document.getElementById('login-section').classList.remove('hidden');
     }
+
+    document.getElementById('register-btn').addEventListener('click', register);
+    document.getElementById('login-btn').addEventListener('click', login);
+    document.getElementById('start-btn').addEventListener('click', startGame);
+    document.getElementById('logout-btn').addEventListener('click', logout);
 
     checkSession();
   </script>
