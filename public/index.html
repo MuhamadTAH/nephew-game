@@ -4,102 +4,48 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nephew's Learning Game</title>
-  <script src="https://unpkg.com/convex@1.39.1/dist/umd.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; }
     .container { text-align: center; color: white; padding: 2rem; }
     h1 { font-size: 3rem; margin-bottom: 2rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-
-    .login-box {
-      background: rgba(255,255,255,0.1);
-      padding: 2rem; border-radius: 20px;
-      backdrop-filter: blur(10px); max-width: 400px; margin: 0 auto;
-    }
-
-    .login-box input {
-      width: 100%; padding: 1rem; font-size: 1.5rem;
-      text-align: center; border: none; border-radius: 10px; margin-bottom: 1rem;
-    }
-
-    .btn {
-      padding: 1rem 2rem; font-size: 1.5rem; border: none;
-      border-radius: 10px; cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s; margin: 0.5rem;
-    }
+    .login-box { background: rgba(255,255,255,0.1); padding: 2rem; border-radius: 20px; backdrop-filter: blur(10px); max-width: 400px; margin: 0 auto; }
+    .login-box input { width: 100%; padding: 1rem; font-size: 1.5rem; text-align: center; border: none; border-radius: 10px; margin-bottom: 1rem; }
+    .btn { padding: 1rem 2rem; font-size: 1.5rem; border: none; border-radius: 10px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; margin: 0.5rem; }
     .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
     .btn-primary { background: #4CAF50; color: white; }
     .btn-secondary { background: #2196F3; color: white; }
-
     .hidden { display: none; }
-
-    .game-area {
-      background: rgba(255,255,255,0.1);
-      padding: 2rem; border-radius: 20px;
-      backdrop-filter: blur(10px); max-width: 800px; margin: 0 auto;
-    }
-
+    .game-area { background: rgba(255,255,255,0.1); padding: 2rem; border-radius: 20px; backdrop-filter: blur(10px); max-width: 800px; margin: 0 auto; }
     .letter-display { font-size: 10rem; font-weight: bold; margin: 2rem 0; text-shadow: 4px 4px 8px rgba(0,0,0,0.3); }
-
     .options-container { display: flex; justify-content: center; gap: 2rem; margin: 2rem 0; }
-
-    .option-box {
-      width: 150px; height: 150px;
-      background: rgba(255,255,255,0.9);
-      border-radius: 20px;
-      display: flex; justify-content: center; align-items: center;
-      font-size: 4rem; font-weight: bold; color: #333;
-      border: 5px solid transparent; transition: all 0.3s;
-    }
-
+    .option-box { width: 150px; height: 150px; background: rgba(255,255,255,0.9); border-radius: 20px; display: flex; justify-content: center; align-items: center; font-size: 4rem; font-weight: bold; color: #333; border: 5px solid transparent; transition: all 0.3s; }
     .option-box.selected { border-color: #FFD700; box-shadow: 0 0 30px rgba(255,215,0,0.7); transform: scale(1.1); }
     .option-box.correct { background: #4CAF50; color: white; animation: pulse 0.5s; }
     .option-box.wrong { background: #f44336; color: white; animation: shake 0.5s; }
-
     @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
     @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
-
     .levels-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin: 2rem 0; }
-
     .level-btn { width: 80px; height: 80px; font-size: 2rem; border-radius: 15px; border: none; cursor: pointer; transition: all 0.2s; }
     .level-btn.current { background: #FFD700; color: #333; transform: scale(1.1); }
     .level-btn.completed { background: #4CAF50; color: white; }
     .level-btn.locked { background: #666; color: #999; cursor: not-allowed; }
-
     .controller-hint { margin-top: 2rem; font-size: 1.2rem; opacity: 0.8; }
-
     .status-message { font-size: 2rem; margin: 1rem 0; padding: 1rem; border-radius: 10px; }
     .status-message.success { background: #4CAF50; }
     .status-message.error { background: #f44336; }
-
-    .loading { font-size: 1.5rem; margin: 2rem 0; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>🎮 Learning Game</h1>
-
-    <div id="loading-section" class="login-box">
-      <p class="loading">Loading game...</p>
-    </div>
-
-    <div id="login-section" class="login-box hidden">
-      <p style="margin-bottom: 1rem; font-size: 1.2rem;">Welcome! Enter your ID to play:</p>
+    <div id="login-section" class="login-box">
+      <p style="margin-bottom: 1rem; font-size: 1.2rem;">Welcome!</p>
+      <button id="register-btn" class="btn btn-secondary">New Player</button>
+      <br><br>
       <input type="number" id="profile-id" placeholder="Your ID" min="1">
       <button id="login-btn" class="btn btn-primary">Login</button>
-      <br><br>
-      <button id="register-btn" class="btn btn-secondary">New Player</button>
     </div>
-
     <div id="dashboard-section" class="game-area hidden">
       <h2>Your Progress</h2>
       <p>Current Level: <span id="current-level">1</span></p>
@@ -107,7 +53,6 @@
       <button id="start-btn" class="btn btn-primary">Start Game</button>
       <button id="logout-btn" class="btn btn-secondary">Switch Player</button>
     </div>
-
     <div id="game-section" class="game-area hidden">
       <div class="letter-display" id="letter-display">A</div>
       <div class="options-container" id="options-container">
@@ -120,43 +65,37 @@
     </div>
   </div>
 
-  <script>
-    const CONVEX_URL = "https://veracious-oriole-103.convex.cloud";
+  <script type="module">
+    import { ConvexHttpClient } from 'https://esm.sh/convex@1.39.1';
 
-    let client = null;
+    const CONVEX_URL = "https://veracious-oriole-103.convex.cloud";
+    const convex = new ConvexHttpClient(CONVEX_URL);
+
     let currentProfileId = localStorage.getItem('profile_id') || null;
     let currentLevelId = 1;
     let selectedBoxIndex = 2;
     let gamepadInterval = null;
     let levelsData = [];
 
-    function initConvex() {
-      client = new ConvexHttpClient(CONVEX_URL);
-      document.getElementById('loading-section').classList.add('hidden');
-      document.getElementById('login-section').classList.remove('hidden');
-      checkSession();
-    }
-
     async function register() {
       try {
-        const result = await client.mutation('register', {});
-        const id = result.id || currentProfileId || Date.now();
+        const result = await convex.mutation('register', {});
+        const id = result.id || Date.now();
         alert('Your ID is: ' + id + '. Remember it!');
         localStorage.setItem('profile_id', id.toString());
         currentProfileId = id;
         showDashboard();
       } catch (e) {
         console.error('Register error:', e);
-        alert('Registration failed. Make sure Convex is running.');
+        alert('Registration failed: ' + e.message);
       }
     }
 
     async function login() {
       const id = document.getElementById('profile-id').value;
       if (!id) return alert('Please enter your ID');
-
       try {
-        const result = await client.mutation('login', { id: parseInt(id) });
+        const result = await convex.mutation('login', { id: parseInt(id) });
         if (result.success) {
           currentProfileId = parseInt(id);
           localStorage.setItem('profile_id', id);
@@ -166,15 +105,7 @@
         }
       } catch (e) {
         console.error('Login error:', e);
-        alert('Login failed.');
-      }
-    }
-
-    async function checkSession() {
-      const storedId = localStorage.getItem('profile_id');
-      if (storedId) {
-        currentProfileId = parseInt(storedId);
-        showDashboard();
+        alert('Login failed: ' + e.message);
       }
     }
 
@@ -186,154 +117,86 @@
 
     async function loadLevels() {
       try {
-        const result = await client.query('getAllLevels', {});
+        const result = await convex.query('getAllLevels', {});
         levelsData = result || [];
       } catch (e) {
         levelsData = [];
+        console.error('loadLevels error:', e);
       }
-
       const grid = document.getElementById('levels-grid');
       grid.innerHTML = '';
-
       let currentLevel = 1;
       try {
-        const profile = await client.query('getProfile', { id: currentProfileId });
+        const profile = await convex.query('getProfile', { id: currentProfileId });
         currentLevel = profile?.currentLevel || 1;
       } catch (e) {}
-
       document.getElementById('current-level').textContent = currentLevel;
-
       const maxLevel = Math.max(levelsData.length, currentLevel, 5);
       for (let i = 1; i <= maxLevel; i++) {
         const btn = document.createElement('button');
         btn.className = 'level-btn';
         btn.textContent = i;
-
-        if (i < currentLevel) {
-          btn.classList.add('completed');
-        } else if (i === currentLevel) {
-          btn.classList.add('current');
-          btn.onclick = () => startLevel(i);
-        } else {
-          btn.classList.add('locked');
-        }
-
+        if (i < currentLevel) btn.classList.add('completed');
+        else if (i === currentLevel) { btn.classList.add('current'); btn.onclick = () => startLevel(i); }
+        else btn.classList.add('locked');
         grid.appendChild(btn);
       }
     }
 
-    async function startGame() {
-      let currentLevel = 1;
-      try {
-        const profile = await client.query('getProfile', { id: currentProfileId });
-        currentLevel = profile?.currentLevel || 1;
-      } catch (e) {}
-      startLevel(currentLevel);
-    }
-
-    async function startLevel(levelId) {
+    function startLevel(levelId) {
       currentLevelId = levelId;
       document.getElementById('dashboard-section').classList.add('hidden');
       document.getElementById('game-section').classList.remove('hidden');
-
-      try {
-        const level = await client.query('getLevel', { levelId });
-        if (!level) {
-          document.getElementById('letter-display').textContent = 'A';
-        } else {
-          document.getElementById('letter-display').textContent = level.letter || 'A';
-        }
-      } catch (e) {
-        document.getElementById('letter-display').textContent = 'A';
-      }
-
+      document.getElementById('letter-display').textContent = 'A';
       const boxes = document.querySelectorAll('.option-box');
       const options = ['A', 'B', ''];
-      boxes.forEach((box, i) => {
-        box.textContent = options[i] || '';
-        box.className = 'option-box';
-      });
-
+      boxes.forEach((box, i) => { box.textContent = options[i] || ''; box.className = 'option-box'; });
       selectedBoxIndex = 2;
       boxes[selectedBoxIndex].classList.add('selected');
       document.getElementById('status-message').classList.add('hidden');
-
       startControllerPolling();
     }
 
     function startControllerPolling() {
       if (gamepadInterval) clearInterval(gamepadInterval);
-
       gamepadInterval = setInterval(() => {
         const gamepads = navigator.getGamepads();
         const gp = gamepads[0];
         if (!gp) return;
-
         const boxes = document.querySelectorAll('.option-box');
-
-        if (gp.buttons[12].pressed) {
-          if (selectedBoxIndex > 0) {
-            boxes[selectedBoxIndex].classList.remove('selected');
-            selectedBoxIndex--;
-            boxes[selectedBoxIndex].classList.add('selected');
-          }
+        if (gp.buttons[12].pressed && selectedBoxIndex > 0) {
+          boxes[selectedBoxIndex].classList.remove('selected');
+          selectedBoxIndex--;
+          boxes[selectedBoxIndex].classList.add('selected');
         }
-        if (gp.buttons[13].pressed) {
-          if (selectedBoxIndex < 2) {
-            boxes[selectedBoxIndex].classList.remove('selected');
-            selectedBoxIndex++;
-            boxes[selectedBoxIndex].classList.add('selected');
-          }
+        if (gp.buttons[13].pressed && selectedBoxIndex < 2) {
+          boxes[selectedBoxIndex].classList.remove('selected');
+          selectedBoxIndex++;
+          boxes[selectedBoxIndex].classList.add('selected');
         }
-        if (gp.buttons[0].pressed) {
-          submitAnswer(selectedBoxIndex);
-        }
+        if (gp.buttons[0].pressed) submitAnswer(selectedBoxIndex);
       }, 100);
     }
 
     async function submitAnswer(boxIndex) {
       const boxes = document.querySelectorAll('.option-box');
       const selectedOption = boxes[boxIndex].textContent;
-
       try {
-        const result = await client.mutation('submitAnswer', {
-          profileId: currentProfileId,
-          levelId: currentLevelId,
-          selectedOption
-        });
-
+        const result = await convex.mutation('submitAnswer', { profileId: currentProfileId, levelId: currentLevelId, selectedOption });
         const statusEl = document.getElementById('status-message');
         statusEl.classList.remove('hidden');
-
         if (result.correct) {
           boxes[boxIndex].classList.add('correct');
           statusEl.className = 'status-message success';
           statusEl.textContent = '✓ Correct!';
-          playSound('correct');
-
-          setTimeout(() => {
-            showDashboard();
-          }, 1500);
+          setTimeout(() => showDashboard(), 1500);
         } else {
           boxes[boxIndex].classList.add('wrong');
           statusEl.className = 'status-message error';
           statusEl.textContent = '✗ Try Again!';
-          playSound('wrong');
-
-          setTimeout(() => {
-            boxes[boxIndex].classList.remove('wrong');
-            statusEl.classList.add('hidden');
-          }, 1000);
+          setTimeout(() => { boxes[boxIndex].classList.remove('wrong'); statusEl.classList.add('hidden'); }, 1000);
         }
-      } catch (e) {
-        console.error('Submit answer error:', e);
-      }
-    }
-
-    function playSound(type) {
-      const audio = new Audio();
-      audio.src = type === 'correct' ? '/sounds/correct.wav' : '/sounds/wrong.wav';
-      audio.play().catch(() => {});
+      } catch (e) { console.error('submitAnswer error:', e); }
     }
 
     function logout() {
@@ -347,14 +210,12 @@
 
     document.getElementById('register-btn').addEventListener('click', register);
     document.getElementById('login-btn').addEventListener('click', login);
-    document.getElementById('start-btn').addEventListener('click', startGame);
+    document.getElementById('start-btn').addEventListener('click', () => {
+      const stored = localStorage.getItem('profile_id');
+      if (stored) startLevel(parseInt(stored));
+      else startLevel(1);
+    });
     document.getElementById('logout-btn').addEventListener('click', logout);
-
-    if (typeof ConvexHttpClient !== 'undefined') {
-      initConvex();
-    } else {
-      document.querySelector('.loading').textContent = 'Error loading Convex. Please refresh.';
-    }
   </script>
 </body>
 </html>
