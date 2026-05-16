@@ -89,17 +89,17 @@
     <div id="login-section" class="login-box">
       <p style="margin-bottom: 1rem; font-size: 1.2rem;">Welcome! Enter your ID to play:</p>
       <input type="number" id="profile-id" placeholder="Your ID" min="1">
-      <button class="btn btn-primary" onclick="login()">Login</button>
+      <button class="btn btn-primary" onclick="window.login()">Login</button>
       <br><br>
-      <button class="btn btn-secondary" onclick="register()">New Player</button>
+      <button class="btn btn-secondary" onclick="window.register()">New Player</button>
     </div>
 
     <div id="dashboard-section" class="game-area hidden">
       <h2>Your Progress</h2>
       <p>Current Level: <span id="current-level">1</span></p>
       <div class="levels-grid" id="levels-grid"></div>
-      <button class="btn btn-primary" onclick="startGame()">Start Game</button>
-      <button class="btn btn-secondary" onclick="logout()">Switch Player</button>
+      <button class="btn btn-primary" onclick="window.startGame()">Start Game</button>
+      <button class="btn btn-secondary" onclick="window.logout()">Switch Player</button>
     </div>
 
     <div id="game-section" class="game-area hidden">
@@ -126,7 +126,7 @@
     let gamepadInterval = null;
     let levelsData = [];
 
-    async function register() {
+    window.register = async function() {
       try {
         const result = await convex.mutation('register', {});
         const id = result.id || currentProfileId || Date.now();
@@ -138,9 +138,9 @@
         console.error('Register error:', e);
         alert('Registration failed. Make sure Convex is running.');
       }
-    }
+    };
 
-    async function login() {
+    window.login = async function() {
       const id = document.getElementById('profile-id').value;
       if (!id) return alert('Please enter your ID');
 
@@ -157,7 +157,7 @@
         console.error('Login error:', e);
         alert('Login failed.');
       }
-    }
+    };
 
     async function checkSession() {
       const storedId = localStorage.getItem('profile_id');
