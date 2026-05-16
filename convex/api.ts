@@ -6,10 +6,11 @@ export const register = mutation({
   handler: async (ctx) => {
     const profiles = await ctx.db.query('profiles').collect();
     const nextId = profiles.length > 0 
-      ? Math.max(...profiles.map(p => (p as any)._id)) + 1 
+      ? Math.max(...profiles.map(p => p.playerId || 0)) + 1 
       : 1;
     
-    const profileId = await ctx.db.insert('profiles', {
+    await ctx.db.insert('profiles', {
+      playerId: nextId,
       currentLevel: 1,
       createdAt: Date.now(),
     });
@@ -22,7 +23,7 @@ export const login = mutation({
   args: { id: v.number() },
   handler: async (ctx, args) => {
     const profiles = await ctx.db.query('profiles').collect();
-    const profile = profiles.find((p: any) => p._id === args.id);
+    const profile = profiles.find((p: any) => p.playerId === args.id);
     
     if (!profile) {
       return { success: false };
@@ -43,7 +44,7 @@ export const getProfile = query({
   args: { id: v.number() },
   handler: async (ctx, args) => {
     const profiles = await ctx.db.query('profiles').collect();
-    return profiles.find((p: any) => p._id === args.id);
+    return profiles.find((p: any) => p.playerId === args.id);
   },
 });
 
@@ -51,7 +52,8 @@ export const submitAnswer = mutation({
   args: { profileId: v.number(), levelId: v.number(), selectedOption: v.string() },
   handler: async (ctx, args) => {
     const levels = await ctx.db.query('levels').collect();
-    const level = levels.find((l: any) => l._id === args.levelId);
+    let level = levels.find((l: any) => l.levelId === args.levelId);
+    if (!level) level = levels[args.levelId - 1];
     
     if (!level) {
       return { correct: false, error: 'Level not found' };
@@ -61,10 +63,10 @@ export const submitAnswer = mutation({
     
     if (isCorrect) {
       const profiles = await ctx.db.query('profiles').collect();
-      const profile = profiles.find((p: any) => p._id === args.profileId);
+      const profile = profiles.find((p: any) => p.playerId === args.profileId);
       
       if (profile) {
-        await ctx.db.patch(args.profileId, {
+        await ctx.db.patch(profile._id, {
           currentLevel: args.levelId + 1,
         });
       }
@@ -80,7 +82,9 @@ export const getLevel = query({
   args: { levelId: v.number() },
   handler: async (ctx, args) => {
     const levels = await ctx.db.query('levels').collect();
-    return levels.find((l: any) => l._id === args.levelId);
+    let level = levels.find((l: any) => l.levelId === args.levelId);
+    if (!level) level = levels[args.levelId - 1];
+    return level;
   },
 });
 

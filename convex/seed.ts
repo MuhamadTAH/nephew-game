@@ -9,6 +9,7 @@ export const seedLevels = mutation({
     }
 
     await ctx.db.insert('levels', {
+      levelId: 1,
       letter: 'A',
       positionIndex: 2,
       options: ['A', 'B', ''],
