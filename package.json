@@ -2,11 +2,11 @@
   "name": "nephew-game",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/main.js",
-    "start:dev": "ts-node -r tsconfig-paths/register src/main.ts",
+    "dev": "node server.js",
+    "start": "node server.js",
+    "build": "echo 'No build needed for static'",
     "test": "jest"
   },
   "keywords": [],
@@ -14,30 +14,15 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "@nestjs/common": "^11.1.21",
-    "@nestjs/config": "^4.0.4",
-    "@nestjs/core": "^11.1.21",
-    "@nestjs/platform-express": "^11.1.21",
-    "@nestjs/serve-static": "^5.0.5",
-    "@nestjs/swagger": "^11.4.3",
-    "@supabase/supabase-js": "^2.105.4",
-    "class-transformer": "^0.5.1",
-    "class-validator": "^0.15.1",
-    "cookie-parser": "^1.4.7",
-    "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.2",
-    "swagger-ui-express": "^5.0.1"
+    "convex": "^1.39.1",
+    "express": "^4.22.2"
   },
   "devDependencies": {
-    "@nestjs/testing": "^11.1.21",
-    "@types/cookie-parser": "^1.4.10",
     "@types/express": "^5.0.6",
     "@types/jest": "^30.0.0",
     "@types/node": "^25.8.0",
     "jest": "^30.4.2",
     "ts-jest": "^29.4.9",
-    "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0",
     "typescript": "^6.0.3"
   }
 }

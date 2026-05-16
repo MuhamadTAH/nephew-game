@@ -4,12 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nephew's Learning Game</title>
+  <script src="https://unpkg.com/convex@1.39.1/dist/esm/index.js" type="module"></script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -20,185 +17,69 @@
       align-items: center;
     }
 
-    .container {
-      text-align: center;
-      color: white;
-      padding: 2rem;
-    }
-
-    h1 {
-      font-size: 3rem;
-      margin-bottom: 2rem;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-    }
+    .container { text-align: center; color: white; padding: 2rem; }
+    h1 { font-size: 3rem; margin-bottom: 2rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
 
     .login-box {
       background: rgba(255,255,255,0.1);
-      padding: 2rem;
-      border-radius: 20px;
-      backdrop-filter: blur(10px);
-      max-width: 400px;
-      margin: 0 auto;
+      padding: 2rem; border-radius: 20px;
+      backdrop-filter: blur(10px); max-width: 400px; margin: 0 auto;
     }
 
     .login-box input {
-      width: 100%;
-      padding: 1rem;
-      font-size: 1.5rem;
-      text-align: center;
-      border: none;
-      border-radius: 10px;
-      margin-bottom: 1rem;
+      width: 100%; padding: 1rem; font-size: 1.5rem;
+      text-align: center; border: none; border-radius: 10px; margin-bottom: 1rem;
     }
 
     .btn {
-      padding: 1rem 2rem;
-      font-size: 1.5rem;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      margin: 0.5rem;
+      padding: 1rem 2rem; font-size: 1.5rem; border: none;
+      border-radius: 10px; cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s; margin: 0.5rem;
     }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    }
-
-    .btn-primary {
-      background: #4CAF50;
-      color: white;
-    }
-
-    .btn-secondary {
-      background: #2196F3;
-      color: white;
-    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+    .btn-primary { background: #4CAF50; color: white; }
+    .btn-secondary { background: #2196F3; color: white; }
 
     .hidden { display: none; }
 
     .game-area {
       background: rgba(255,255,255,0.1);
-      padding: 2rem;
-      border-radius: 20px;
-      backdrop-filter: blur(10px);
-      max-width: 800px;
-      margin: 0 auto;
+      padding: 2rem; border-radius: 20px;
+      backdrop-filter: blur(10px); max-width: 800px; margin: 0 auto;
     }
 
-    .letter-display {
-      font-size: 10rem;
-      font-weight: bold;
-      margin: 2rem 0;
-      text-shadow: 4px 4px 8px rgba(0,0,0,0.3);
-    }
+    .letter-display { font-size: 10rem; font-weight: bold; margin: 2rem 0; text-shadow: 4px 4px 8px rgba(0,0,0,0.3); }
 
-    .options-container {
-      display: flex;
-      justify-content: center;
-      gap: 2rem;
-      margin: 2rem 0;
-    }
+    .options-container { display: flex; justify-content: center; gap: 2rem; margin: 2rem 0; }
 
     .option-box {
-      width: 150px;
-      height: 150px;
+      width: 150px; height: 150px;
       background: rgba(255,255,255,0.9);
       border-radius: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 4rem;
-      font-weight: bold;
-      color: #333;
-      border: 5px solid transparent;
-      transition: all 0.3s;
+      display: flex; justify-content: center; align-items: center;
+      font-size: 4rem; font-weight: bold; color: #333;
+      border: 5px solid transparent; transition: all 0.3s;
     }
 
-    .option-box.selected {
-      border-color: #FFD700;
-      box-shadow: 0 0 30px rgba(255,215,0,0.7);
-      transform: scale(1.1);
-    }
+    .option-box.selected { border-color: #FFD700; box-shadow: 0 0 30px rgba(255,215,0,0.7); transform: scale(1.1); }
+    .option-box.correct { background: #4CAF50; color: white; animation: pulse 0.5s; }
+    .option-box.wrong { background: #f44336; color: white; animation: shake 0.5s; }
 
-    .option-box.correct {
-      background: #4CAF50;
-      color: white;
-      animation: pulse 0.5s;
-    }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
 
-    .option-box.wrong {
-      background: #f44336;
-      color: white;
-      animation: shake 0.5s;
-    }
+    .levels-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin: 2rem 0; }
 
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.2); }
-    }
+    .level-btn { width: 80px; height: 80px; font-size: 2rem; border-radius: 15px; border: none; cursor: pointer; transition: all 0.2s; }
+    .level-btn.current { background: #FFD700; color: #333; transform: scale(1.1); }
+    .level-btn.completed { background: #4CAF50; color: white; }
+    .level-btn.locked { background: #666; color: #999; cursor: not-allowed; }
 
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-10px); }
-      75% { transform: translateX(10px); }
-    }
+    .controller-hint { margin-top: 2rem; font-size: 1.2rem; opacity: 0.8; }
 
-    .levels-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 1rem;
-      margin: 2rem 0;
-    }
-
-    .level-btn {
-      width: 80px;
-      height: 80px;
-      font-size: 2rem;
-      border-radius: 15px;
-      border: none;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .level-btn.current {
-      background: #FFD700;
-      color: #333;
-      transform: scale(1.1);
-    }
-
-    .level-btn.completed {
-      background: #4CAF50;
-      color: white;
-    }
-
-    .level-btn.locked {
-      background: #666;
-      color: #999;
-      cursor: not-allowed;
-    }
-
-    .controller-hint {
-      margin-top: 2rem;
-      font-size: 1.2rem;
-      opacity: 0.8;
-    }
-
-    .status-message {
-      font-size: 2rem;
-      margin: 1rem 0;
-      padding: 1rem;
-      border-radius: 10px;
-    }
-
-    .status-message.success {
-      background: #4CAF50;
-    }
-
-    .status-message.error {
-      background: #f44336;
-    }
+    .status-message { font-size: 2rem; margin: 1rem 0; padding: 1rem; border-radius: 10px; }
+    .status-message.success { background: #4CAF50; }
+    .status-message.error { background: #f44336; }
   </style>
 </head>
 <body>
@@ -223,35 +104,39 @@
 
     <div id="game-section" class="game-area hidden">
       <div class="letter-display" id="letter-display">A</div>
-
       <div class="options-container" id="options-container">
         <div class="option-box" data-index="0"></div>
         <div class="option-box" data-index="1"></div>
         <div class="option-box" data-index="2"></div>
       </div>
-
       <div id="status-message" class="status-message hidden"></div>
-
       <p class="controller-hint">Use D-Pad to move • Press X to select</p>
     </div>
   </div>
 
-  <script>
-    const API_URL = window.location.origin;
-    let currentProfile = null;
+  <script type="module">
+    import { ConvexHttpClient } from "https://unpkg.com/convex@1.39.1/dist/esm/client.js";
+
+    const CONVEX_URL = "https://veracious-oriole-103.convex.cloud";
+    const convex = new ConvexHttpClient(CONVEX_URL);
+
+    let currentProfileId = localStorage.getItem('profile_id') || null;
     let currentLevelId = 1;
     let selectedBoxIndex = 2;
     let gamepadInterval = null;
+    let levelsData = [];
 
     async function register() {
-      const res = await fetch(`${API_URL}/auth/register`, {
-        method: 'POST',
-        credentials: 'include'
-      });
-      const data = await res.json();
-      if (data.id) {
-        alert(`Your ID is: ${data.id}. Remember it!`);
-        document.getElementById('profile-id').value = data.id;
+      try {
+        const result = await convex.mutation('register', {});
+        const id = result.id || currentProfileId || Date.now();
+        alert(`Your ID is: ${id}. Remember it!`);
+        localStorage.setItem('profile_id', id.toString());
+        currentProfileId = id;
+        showDashboard();
+      } catch (e) {
+        console.error('Register error:', e);
+        alert('Registration failed. Make sure Convex is running.');
       }
     }
 
@@ -259,63 +144,80 @@
       const id = document.getElementById('profile-id').value;
       if (!id) return alert('Please enter your ID');
 
-      const res = await fetch(`${API_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ id: parseInt(id) })
-      });
-      const data = await res.json();
-      if (data.success) {
-        currentProfile = data.profile;
-        showDashboard();
-      } else {
-        alert('Profile not found');
+      try {
+        const result = await convex.mutation('login', { id: parseInt(id) });
+        if (result.success) {
+          currentProfileId = parseInt(id);
+          localStorage.setItem('profile_id', id);
+          showDashboard();
+        } else {
+          alert('Profile not found');
+        }
+      } catch (e) {
+        console.error('Login error:', e);
+        alert('Login failed.');
       }
     }
 
     async function checkSession() {
-      const res = await fetch(`${API_URL}/auth/me`, { credentials: 'include' });
-      const data = await res.json();
-      if (data.loggedIn) {
-        currentProfile = data.profile;
+      const storedId = localStorage.getItem('profile_id');
+      if (storedId) {
+        currentProfileId = parseInt(storedId);
         showDashboard();
       }
     }
 
-    function showDashboard() {
+    async function showDashboard() {
       document.getElementById('login-section').classList.add('hidden');
       document.getElementById('dashboard-section').classList.remove('hidden');
-      document.getElementById('current-level').textContent = currentProfile.current_level;
-      loadLevels();
+      await loadLevels();
     }
 
     async function loadLevels() {
-      const res = await fetch(`${API_URL}/levels`);
-      const levels = await res.json();
+      try {
+        const result = await convex.query('getAllLevels', {});
+        levelsData = result || [];
+      } catch (e) {
+        levelsData = [];
+      }
+
       const grid = document.getElementById('levels-grid');
       grid.innerHTML = '';
 
-      levels.forEach(level => {
+      let currentLevel = 1;
+      try {
+        const profile = await convex.query('getProfile', { id: currentProfileId });
+        currentLevel = profile?.currentLevel || 1;
+      } catch (e) {}
+
+      document.getElementById('current-level').textContent = currentLevel;
+
+      const maxLevel = Math.max(levelsData.length, currentLevel, 5);
+      for (let i = 1; i <= maxLevel; i++) {
         const btn = document.createElement('button');
         btn.className = 'level-btn';
-        btn.textContent = level.id;
+        btn.textContent = i;
 
-        if (level.id < currentProfile.current_level) {
+        if (i < currentLevel) {
           btn.classList.add('completed');
-        } else if (level.id === currentProfile.current_level) {
+        } else if (i === currentLevel) {
           btn.classList.add('current');
-          btn.onclick = () => startLevel(level.id);
+          btn.onclick = () => startLevel(i);
         } else {
           btn.classList.add('locked');
         }
 
         grid.appendChild(btn);
-      });
+      }
     }
 
-    function startGame() {
-      startLevel(currentProfile.current_level);
+    async function startGame() {
+      let currentLevel = 1;
+      try {
+        const profile = await convex.query('getProfile', { id: currentProfileId });
+        currentLevel = profile?.currentLevel || 1;
+      } catch (e) {}
+      startLevel(currentLevel);
     }
 
     async function startLevel(levelId) {
@@ -323,20 +225,26 @@
       document.getElementById('dashboard-section').classList.add('hidden');
       document.getElementById('game-section').classList.remove('hidden');
 
-      const res = await fetch(`${API_URL}/levels/${levelId}`);
-      const level = await res.json();
-
-      document.getElementById('letter-display').textContent = level.letter;
+      try {
+        const level = await convex.query('getLevel', { levelId });
+        if (!level) {
+          document.getElementById('letter-display').textContent = 'A';
+        } else {
+          document.getElementById('letter-display').textContent = level.letter || 'A';
+        }
+      } catch (e) {
+        document.getElementById('letter-display').textContent = 'A';
+      }
 
       const boxes = document.querySelectorAll('.option-box');
+      const options = ['A', 'B', ''];
       boxes.forEach((box, i) => {
-        box.textContent = level.options[i] || '';
+        box.textContent = options[i] || '';
         box.className = 'option-box';
       });
 
-      selectedBoxIndex = level.positionIndex || 2;
+      selectedBoxIndex = 2;
       boxes[selectedBoxIndex].classList.add('selected');
-
       document.getElementById('status-message').classList.add('hidden');
 
       startControllerPolling();
@@ -376,58 +284,50 @@
       const boxes = document.querySelectorAll('.option-box');
       const selectedOption = boxes[boxIndex].textContent;
 
-      const res = await fetch(`${API_URL}/game/answer`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ levelId: currentLevelId, selectedOption })
-      });
-      const data = await res.json();
+      try {
+        const result = await convex.mutation('submitAnswer', {
+          profileId: currentProfileId,
+          levelId: currentLevelId,
+          selectedOption
+        });
 
-      const statusEl = document.getElementById('status-message');
-      statusEl.classList.remove('hidden');
+        const statusEl = document.getElementById('status-message');
+        statusEl.classList.remove('hidden');
 
-      if (data.correct) {
-        boxes[boxIndex].classList.add('correct');
-        statusEl.className = 'status-message success';
-        statusEl.textContent = '✓ Correct!';
-        playSound('correct');
+        if (result.correct) {
+          boxes[boxIndex].classList.add('correct');
+          statusEl.className = 'status-message success';
+          statusEl.textContent = '✓ Correct!';
+          playSound('correct');
 
-        setTimeout(async () => {
-          const meRes = await fetch(`${API_URL}/auth/me`, { credentials: 'include' });
-          const meData = await meRes.json();
-          if (meData.loggedIn) {
-            currentProfile = meData.profile;
-          }
-          showDashboard();
-        }, 1500);
-      } else {
-        boxes[boxIndex].classList.add('wrong');
-        statusEl.className = 'status-message error';
-        statusEl.textContent = '✗ Try Again!';
-        playSound('wrong');
+          setTimeout(() => {
+            showDashboard();
+          }, 1500);
+        } else {
+          boxes[boxIndex].classList.add('wrong');
+          statusEl.className = 'status-message error';
+          statusEl.textContent = '✗ Try Again!';
+          playSound('wrong');
 
-        setTimeout(() => {
-          boxes[boxIndex].classList.remove('wrong');
-          statusEl.classList.add('hidden');
-        }, 1000);
+          setTimeout(() => {
+            boxes[boxIndex].classList.remove('wrong');
+            statusEl.classList.add('hidden');
+          }, 1000);
+        }
+      } catch (e) {
+        console.error('Submit answer error:', e);
       }
     }
 
     function playSound(type) {
       const audio = new Audio();
-      audio.src = type === 'correct'
-        ? '/sounds/correct.wav'
-        : '/sounds/wrong.wav';
+      audio.src = type === 'correct' ? '/sounds/correct.wav' : '/sounds/wrong.wav';
       audio.play().catch(() => {});
     }
 
-    async function logout() {
-      await fetch(`${API_URL}/auth/logout`, {
-        method: 'POST',
-        credentials: 'include'
-      });
-      currentProfile = null;
+    function logout() {
+      localStorage.removeItem('profile_id');
+      currentProfileId = null;
       if (gamepadInterval) clearInterval(gamepadInterval);
       document.getElementById('dashboard-section').classList.add('hidden');
       document.getElementById('game-section').classList.add('hidden');
