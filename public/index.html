@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nephew's Learning Game</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      text-align: center;
+      color: white;
+      padding: 2rem;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 2rem;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .login-box {
+      background: rgba(255,255,255,0.1);
+      padding: 2rem;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1.5rem;
+      text-align: center;
+      border: none;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .btn {
+      padding: 1rem 2rem;
+      font-size: 1.5rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin: 0.5rem;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    .btn-primary {
+      background: #4CAF50;
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #2196F3;
+      color: white;
+    }
+
+    .hidden { display: none; }
+
+    .game-area {
+      background: rgba(255,255,255,0.1);
+      padding: 2rem;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .letter-display {
+      font-size: 10rem;
+      font-weight: bold;
+      margin: 2rem 0;
+      text-shadow: 4px 4px 8px rgba(0,0,0,0.3);
+    }
+
+    .options-container {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+
+    .option-box {
+      width: 150px;
+      height: 150px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 4rem;
+      font-weight: bold;
+      color: #333;
+      border: 5px solid transparent;
+      transition: all 0.3s;
+    }
+
+    .option-box.selected {
+      border-color: #FFD700;
+      box-shadow: 0 0 30px rgba(255,215,0,0.7);
+      transform: scale(1.1);
+    }
+
+    .option-box.correct {
+      background: #4CAF50;
+      color: white;
+      animation: pulse 0.5s;
+    }
+
+    .option-box.wrong {
+      background: #f44336;
+      color: white;
+      animation: shake 0.5s;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    .levels-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+
+    .level-btn {
+      width: 80px;
+      height: 80px;
+      font-size: 2rem;
+      border-radius: 15px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .level-btn.current {
+      background: #FFD700;
+      color: #333;
+      transform: scale(1.1);
+    }
+
+    .level-btn.completed {
+      background: #4CAF50;
+      color: white;
+    }
+
+    .level-btn.locked {
+      background: #666;
+      color: #999;
+      cursor: not-allowed;
+    }
+
+    .controller-hint {
+      margin-top: 2rem;
+      font-size: 1.2rem;
+      opacity: 0.8;
+    }
+
+    .status-message {
+      font-size: 2rem;
+      margin: 1rem 0;
+      padding: 1rem;
+      border-radius: 10px;
+    }
+
+    .status-message.success {
+      background: #4CAF50;
+    }
+
+    .status-message.error {
+      background: #f44336;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎮 Learning Game</h1>
+
+    <div id="login-section" class="login-box">
+      <p style="margin-bottom: 1rem; font-size: 1.2rem;">Welcome! Enter your ID to play:</p>
+      <input type="number" id="profile-id" placeholder="Your ID" min="1">
+      <button class="btn btn-primary" onclick="login()">Login</button>
+      <br><br>
+      <button class="btn btn-secondary" onclick="register()">New Player</button>
+    </div>
+
+    <div id="dashboard-section" class="game-area hidden">
+      <h2>Your Progress</h2>
+      <p>Current Level: <span id="current-level">1</span></p>
+      <div class="levels-grid" id="levels-grid"></div>
+      <button class="btn btn-primary" onclick="startGame()">Start Game</button>
+      <button class="btn btn-secondary" onclick="logout()">Switch Player</button>
+    </div>
+
+    <div id="game-section" class="game-area hidden">
+      <div class="letter-display" id="letter-display">A</div>
+
+      <div class="options-container" id="options-container">
+        <div class="option-box" data-index="0"></div>
+        <div class="option-box" data-index="1"></div>
+        <div class="option-box" data-index="2"></div>
+      </div>
+
+      <div id="status-message" class="status-message hidden"></div>
+
+      <p class="controller-hint">Use D-Pad to move • Press X to select</p>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = window.location.origin;
+    let currentProfile = null;
+    let currentLevelId = 1;
+    let selectedBoxIndex = 2;
+    let gamepadInterval = null;
+
+    async function register() {
+      const res = await fetch(`${API_URL}/auth/register`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+      const data = await res.json();
+      if (data.id) {
+        alert(`Your ID is: ${data.id}. Remember it!`);
+        document.getElementById('profile-id').value = data.id;
+      }
+    }
+
+    async function login() {
+      const id = document.getElementById('profile-id').value;
+      if (!id) return alert('Please enter your ID');
+
+      const res = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ id: parseInt(id) })
+      });
+      const data = await res.json();
+      if (data.success) {
+        currentProfile = data.profile;
+        showDashboard();
+      } else {
+        alert('Profile not found');
+      }
+    }
+
+    async function checkSession() {
+      const res = await fetch(`${API_URL}/auth/me`, { credentials: 'include' });
+      const data = await res.json();
+      if (data.loggedIn) {
+        currentProfile = data.profile;
+        showDashboard();
+      }
+    }
+
+    function showDashboard() {
+      document.getElementById('login-section').classList.add('hidden');
+      document.getElementById('dashboard-section').classList.remove('hidden');
+      document.getElementById('current-level').textContent = currentProfile.current_level;
+      loadLevels();
+    }
+
+    async function loadLevels() {
+      const res = await fetch(`${API_URL}/levels`);
+      const levels = await res.json();
+      const grid = document.getElementById('levels-grid');
+      grid.innerHTML = '';
+
+      levels.forEach(level => {
+        const btn = document.createElement('button');
+        btn.className = 'level-btn';
+        btn.textContent = level.id;
+
+        if (level.id < currentProfile.current_level) {
+          btn.classList.add('completed');
+        } else if (level.id === currentProfile.current_level) {
+          btn.classList.add('current');
+          btn.onclick = () => startLevel(level.id);
+        } else {
+          btn.classList.add('locked');
+        }
+
+        grid.appendChild(btn);
+      });
+    }
+
+    function startGame() {
+      startLevel(currentProfile.current_level);
+    }
+
+    async function startLevel(levelId) {
+      currentLevelId = levelId;
+      document.getElementById('dashboard-section').classList.add('hidden');
+      document.getElementById('game-section').classList.remove('hidden');
+
+      const res = await fetch(`${API_URL}/levels/${levelId}`);
+      const level = await res.json();
+
+      document.getElementById('letter-display').textContent = level.letter;
+
+      const boxes = document.querySelectorAll('.option-box');
+      boxes.forEach((box, i) => {
+        box.textContent = level.options[i] || '';
+        box.className = 'option-box';
+      });
+
+      selectedBoxIndex = level.positionIndex || 2;
+      boxes[selectedBoxIndex].classList.add('selected');
+
+      document.getElementById('status-message').classList.add('hidden');
+
+      startControllerPolling();
+    }
+
+    function startControllerPolling() {
+      if (gamepadInterval) clearInterval(gamepadInterval);
+
+      gamepadInterval = setInterval(() => {
+        const gamepads = navigator.getGamepads();
+        const gp = gamepads[0];
+        if (!gp) return;
+
+        const boxes = document.querySelectorAll('.option-box');
+
+        if (gp.buttons[12].pressed) {
+          if (selectedBoxIndex > 0) {
+            boxes[selectedBoxIndex].classList.remove('selected');
+            selectedBoxIndex--;
+            boxes[selectedBoxIndex].classList.add('selected');
+          }
+        }
+        if (gp.buttons[13].pressed) {
+          if (selectedBoxIndex < 2) {
+            boxes[selectedBoxIndex].classList.remove('selected');
+            selectedBoxIndex++;
+            boxes[selectedBoxIndex].classList.add('selected');
+          }
+        }
+        if (gp.buttons[0].pressed) {
+          submitAnswer(selectedBoxIndex);
+        }
+      }, 100);
+    }
+
+    async function submitAnswer(boxIndex) {
+      const boxes = document.querySelectorAll('.option-box');
+      const selectedOption = boxes[boxIndex].textContent;
+
+      const res = await fetch(`${API_URL}/game/answer`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ levelId: currentLevelId, selectedOption })
+      });
+      const data = await res.json();
+
+      const statusEl = document.getElementById('status-message');
+      statusEl.classList.remove('hidden');
+
+      if (data.correct) {
+        boxes[boxIndex].classList.add('correct');
+        statusEl.className = 'status-message success';
+        statusEl.textContent = '✓ Correct!';
+        playSound('correct');
+
+        setTimeout(async () => {
+          const meRes = await fetch(`${API_URL}/auth/me`, { credentials: 'include' });
+          const meData = await meRes.json();
+          if (meData.loggedIn) {
+            currentProfile = meData.profile;
+          }
+          showDashboard();
+        }, 1500);
+      } else {
+        boxes[boxIndex].classList.add('wrong');
+        statusEl.className = 'status-message error';
+        statusEl.textContent = '✗ Try Again!';
+        playSound('wrong');
+
+        setTimeout(() => {
+          boxes[boxIndex].classList.remove('wrong');
+          statusEl.classList.add('hidden');
+        }, 1000);
+      }
+    }
+
+    function playSound(type) {
+      const audio = new Audio();
+      audio.src = type === 'correct'
+        ? '/sounds/correct.wav'
+        : '/sounds/wrong.wav';
+      audio.play().catch(() => {});
+    }
+
+    async function logout() {
+      await fetch(`${API_URL}/auth/logout`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+      currentProfile = null;
+      if (gamepadInterval) clearInterval(gamepadInterval);
+      document.getElementById('dashboard-section').classList.add('hidden');
+      document.getElementById('game-section').classList.add('hidden');
+      document.getElementById('login-section').classList.remove('hidden');
+    }
+
+    checkSession();
+  </script>
+</body>
+</html>
