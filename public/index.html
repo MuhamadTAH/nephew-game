@@ -68,17 +68,34 @@
     </div>
   </div>
 
-  <script type="module">
-    import { ConvexHttpClient } from 'https://cdn.skypack.dev/convex@1.39.1';
+  const script = document.createElement('script');
+    script.src = 'https://unpkg.com/convex@1.39.1/dist/cjs/index.js';
+    script.onload = () => {
+      const { ConvexHttpClient } = window.Convex;
+      const CONVEX_URL = "https://veracious-oriole-103.convex.cloud";
+      window.convex = new ConvexHttpClient(CONVEX_URL);
+      log('Convex loaded successfully');
 
-    const CONVEX_URL = "https://veracious-oriole-103.convex.cloud";
-    const convex = new ConvexHttpClient(CONVEX_URL);
+      document.getElementById('register-btn').addEventListener('click', register);
+      document.getElementById('login-btn').addEventListener('click', login);
+      document.getElementById('start-btn').addEventListener('click', () => {
+        const stored = localStorage.getItem('profile_id');
+        log('start-btn clicked, stored=' + stored);
+        if (stored) startLevel(parseInt(stored));
+        else startLevel(1);
+      });
+      document.getElementById('logout-btn').addEventListener('click', logout);
 
-    let currentProfileId = localStorage.getItem('profile_id') || null;
-    let currentLevelId = 1;
-    let selectedBoxIndex = 2;
-    let gamepadInterval = null;
-    let levelsData = [];
+      const stored = localStorage.getItem('profile_id');
+      if (stored) {
+        currentProfileId = parseInt(stored);
+        showDashboard();
+      }
+    };
+    script.onerror = (e) => {
+      log('Failed to load Convex: ' + JSON.stringify(e));
+    };
+    document.head.appendChild(script);
 
     function log(msg) {
       console.log('[GAME]', msg);
@@ -244,16 +261,7 @@
       document.getElementById('login-section').classList.remove('hidden');
     }
 
-    document.getElementById('register-btn').addEventListener('click', register);
-    document.getElementById('login-btn').addEventListener('click', login);
-    document.getElementById('start-btn').addEventListener('click', () => {
-      const stored = localStorage.getItem('profile_id');
-      log('start-btn clicked, stored=' + stored);
-      if (stored) startLevel(parseInt(stored));
-      else startLevel(1);
-    });
-    document.getElementById('logout-btn').addEventListener('click', logout);
-    log('Script initialized, currentProfileId=' + currentProfileId);
+    log('Script initialized, waiting for Convex to load');
   </script>
 </body>
 </html>

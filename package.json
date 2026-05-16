@@ -14,8 +14,10 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@playwright/test": "^1.60.0",
     "convex": "^1.39.1",
-    "express": "^4.22.2"
+    "express": "^4.22.2",
+    "playwright": "^1.60.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
